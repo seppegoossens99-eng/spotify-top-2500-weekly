@@ -1,0 +1,30 @@
+import csv
+import io
+import requests
+from bs4 import BeautifulSoup
+
+URL = "https://kworb.net/spotify/songs.html"
+response = requests.get(URL, timeout=45, headers={"User-Agent": "Mozilla/5.0"})
+response.raise_for_status()
+soup = BeautifulSoup(response.text, "html.parser")
+table = soup.find("table")
+if table is None:
+    raise RuntimeError("Geen Kworb-tabel gevonden")
+headers = [th.get_text(" ", strip=True) for th in table.select("tr th")]
+if not any("artist" in h.lower() or "track" in h.lower() for h in headers):
+    raise RuntimeError("Kworb-kolommen zijn gewijzigd; update afgebroken")
+tracks = []
+for row in table.select("tr"):
+    cells = row.find_all("td")
+    if not cells:
+        continue
+    song = cells[0].get_text(" ", strip=True)
+    if " - " in song and len(song) < 300:
+        tracks.append(song)
+if not 2300 <= len(tracks) <= 2600:
+    raise RuntimeError(f"Onverwacht aantal Kworb-nummers: {len(tracks)}. CSV niet vervangen.")
+with open("songs.csv", "w", encoding="utf-8-sig", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["Track"])
+    writer.writerows([[track] for track in tracks])
+print(f"Kworb bijgewerkt: {len(tracks)} tracks")
