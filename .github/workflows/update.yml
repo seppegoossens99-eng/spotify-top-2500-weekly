@@ -25,6 +25,16 @@ jobs:
           SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
         run: python update_spotify.py
+      - name: Upload diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotify-top-2500-reports
+          path: |
+            not_found.csv
+            duplicate_tracks.csv
+            review_matches.csv
+          if-no-files-found: warn
       - name: Save cache and reports
         if: success()
         run: |
