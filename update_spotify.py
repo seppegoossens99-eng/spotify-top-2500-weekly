@@ -35,6 +35,17 @@ OVERRIDES = {
 }
 
 
+def repair_text(value):
+    """Herstel UTF-8-tekst die eerder als Windows-1252 is gelezen."""
+    if not any(marker in value for marker in ("Ã", "Â", "â€")):
+        return value
+    try:
+        repaired = value.encode("cp1252").decode("utf-8")
+        return repaired if repaired else value
+    except (UnicodeError, ValueError):
+        return value
+
+
 def read_songs():
     if not SONGS_FILE.exists():
         raise RuntimeError("songs.csv ontbreekt.")
@@ -50,7 +61,7 @@ def read_songs():
             )
 
         return [
-            row["Track"].strip()
+            repair_text(row["Track"].strip())
             for row in reader
             if row.get("Track", "").strip()
         ]
