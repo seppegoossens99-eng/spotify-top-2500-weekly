@@ -36,15 +36,23 @@ OVERRIDES = {
 
 
 def repair_text(value):
-    """Herstel UTF-8-tekst die eerder als Windows-1252 is gelezen."""
-    if not any(marker in value for marker in ("Ã", "Â", "â€")):
-        return value
-    try:
-        repaired = value.encode("cp1252").decode("utf-8")
-        return repaired if repaired else value
-    except (UnicodeError, ValueError):
-        return value
-
+    """Herstel veelvoorkomende UTF-8/Latin-1/Windows-1252-tekstfouten."""
+    for _ in range(2):
+        if not any(marker in value for marker in ("Ã", "Â", "â", "ðŸ")):
+            break
+        repaired = None
+        for encoding in ("latin-1", "cp1252"):
+            try:
+                candidate = value.encode(encoding).decode("utf-8")
+                if candidate != value:
+                    repaired = candidate
+                    break
+            except (UnicodeError, ValueError):
+                continue
+        if repaired is None:
+            break
+        value = repaired
+    return value
 
 def read_songs():
     if not SONGS_FILE.exists():
