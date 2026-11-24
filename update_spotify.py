@@ -22,13 +22,16 @@ REVIEW_FILE = BASE / "review_matches.csv"
 PLAYLIST_ID = "2SZarSuNX3RgNSHUj1zVcQ"
 
 # Eerst testen, zonder Spotify-playlist te wijzigen.
-DRY_RUN = False
+DRY_RUN = os.getenv("SPOTIFY_DRY_RUN", "").lower() == "true"
 
+TOP_TRACKS = 2500
 MIN_TRACKS = 2400
 MAX_SEARCHES = 60
 
 # Handmatig beoordeelde Spotify-versies.
 OVERRIDES = {
+    "Luis Fonsi - Despacito": "6habFhsOp2NvshLv26DqMb",
+    "Fifth Harmony - Work From Home": "4tCtwWceOPWzenK2HAIJSb",
     "Elton John - Cold Heart": "6zSpb8dQRaw0M1dK8PBwQz",
     "Mark Ronson - Valerie": "6kopmMZiyLmw7h66uXcXR7",
     "Amy Winehouse - Valerie": "6nLvaCZFR1wEzW3sIKpsnr",
@@ -355,7 +358,7 @@ def main():
     print("Cache-items:", len(cache))
     print("Testmodus:", DRY_RUN)
 
-    if not (2300 <= len(songs) <= 2600):
+    if len(songs) != TOP_TRACKS:
         raise RuntimeError(
             "Onverwacht aantal Kworb-regels."
         )
@@ -549,7 +552,6 @@ def main():
 
     if (
         len(track_ids) < MIN_TRACKS
-        or missing
         or search_limit_reached
     ):
         raise RuntimeError(

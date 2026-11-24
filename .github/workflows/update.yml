@@ -1,6 +1,18 @@
 name: Update Spotify Top 2500
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Alleen matches controleren, zonder Spotify te wijzigen'
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+    paths:
+      - fetch_kworb.py
+      - update_spotify.py
+      - requirements.txt
+      - .github/workflows/update.yml
   schedule:
     - cron: '0 6 * * 1'
 permissions:
@@ -21,6 +33,7 @@ jobs:
       - run: python fetch_kworb.py
       - name: Update Spotify playlist
         env:
+          SPOTIFY_DRY_RUN: ${{ inputs.dry_run }}
           SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
           SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
           SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
@@ -36,7 +49,7 @@ jobs:
             review_matches.csv
           if-no-files-found: warn
       - name: Save cache and reports
-        if: success()
+        if: success() && inputs.dry_run != true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

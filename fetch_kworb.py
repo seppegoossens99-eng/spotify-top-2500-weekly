@@ -1,5 +1,4 @@
 import csv
-import io
 import requests
 from bs4 import BeautifulSoup
 
@@ -13,16 +12,18 @@ if table is None:
 headers = [th.get_text(" ", strip=True) for th in table.select("tr th")]
 if not any("artist" in h.lower() or "track" in h.lower() for h in headers):
     raise RuntimeError("Kworb-kolommen zijn gewijzigd; update afgebroken")
+TOP_TRACKS = 2500
 tracks = []
 for row in table.select("tr"):
     cells = row.find_all("td")
     if not cells:
         continue
     song = cells[0].get_text(" ", strip=True)
-    if " - " in song and len(song) < 300:
-        tracks.append(song)
-if not 2300 <= len(tracks) <= 2600:
-    raise RuntimeError(f"Onverwacht aantal Kworb-nummers: {len(tracks)}. CSV niet vervangen.")
+    tracks.append(song)
+    if len(tracks) == TOP_TRACKS:
+        break
+if len(tracks) != TOP_TRACKS or not all(tracks):
+    raise RuntimeError(f"Kworb leverde geen volledige top {TOP_TRACKS}. CSV niet vervangen.")
 with open("songs.csv", "w", encoding="utf-8-sig", newline="") as file:
     writer = csv.writer(file)
     writer.writerow(["Track"])
