@@ -31,6 +31,7 @@ MAX_SEARCHES = 60
 # Handmatig beoordeelde Spotify-versies.
 OVERRIDES = {
     "Luis Fonsi - Despacito": "6habFhsOp2NvshLv26DqMb",
+    "gnash - I Hate U, I Love U": "7vRriwrloYVaoAe3a9wJHe",
     "Fifth Harmony - Work From Home": "4tCtwWceOPWzenK2HAIJSb",
     "Elton John - Cold Heart": "6zSpb8dQRaw0M1dK8PBwQz",
     "Mark Ronson - Valerie": "6kopmMZiyLmw7h66uXcXR7",
